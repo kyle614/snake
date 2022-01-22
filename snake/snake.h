@@ -1,25 +1,23 @@
 #include <iostream>
-#include <windows.h>
-#include <conio.h>
-#include <cstdlib>
-#include <ctime>
+#include <windows.h>// in order to use windows API 
+#include <conio.h>// detect user's keyboard
+#include <cstdlib>// random number
+#include <ctime>// initialize random number with time
 
 using namespace std;
 
-
-// 遊戲變數宣告 
+// variabale declaration
 bool gameOver;
 const int width = 25;
 const int height = 15;
-int x, y, coinX, coinY, score;
+int x, y, coinX, coinY, bombX, bombY, score, length = 1;
 int nTail;
 int tailX[150], tailY[150];
 int direction;
 const int Stop = 0, Left = 1, Right = 2, Up = 3, Down = 4;
 
-
-// 函數 
-void Clear()
+// funtions
+void Clear()// delete screen
 {
   COORD scrn;
   HANDLE hOuput = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -29,6 +27,7 @@ void Clear()
   return;
 }
 
+
 void SetUp(){
 	gameOver = 0;
 	direction = Stop;
@@ -37,15 +36,24 @@ void SetUp(){
 	flag:
 	coinX = rand()%(width-1) +1;
 	coinY = rand()%(height-1) +1;
+	bombX = rand()%(width-1) +1;
+	bombY = rand()%(height-1) +1;
 	if(x == coinX && y == coinY){
 		goto flag;
 	}
+	if(x == bombX && y == bombY){
+		goto flag;
+	}
+	if(coinX == bombX && coinY == bombY){
+		goto flag;
+	}
+
 	return;
 }
 
 
 void Draw(){
-	Sleep(100);
+	Sleep(100);//stop the screen 0.1 second
 	Clear();
 	
 	for(int i = 0; i < width+2; i++){
@@ -53,6 +61,7 @@ void Draw(){
 	}
 	cout << endl;
 	
+	//spawn boundary, and objects
 	for(int i = 0; i < height; i++){
 		for(int j = 0; j < width; j++){
 			if(j == 0){
@@ -63,6 +72,9 @@ void Draw(){
 			}
 			else if(i == coinY && j == coinX){
 				cout << "$";
+			}
+			else if(i == bombY && j == bombX){
+				cout << "@";
 			}
 			else{
 				bool printSnake = false;
@@ -88,6 +100,7 @@ void Draw(){
 	}
 	cout << endl;
 	cout << "Score : " << score << endl;
+	cout << "Length : " << length << endl;
 	return;
 }
 
@@ -172,9 +185,15 @@ void Algorithm(){
 	
 	if(x == coinX && y == coinY){
 		score += 20;
+		length += 1;
 		coinX = rand()%(width-1) +1;
 		coinY = rand()%(height-1) +1;
 		nTail++;
+	}
+	if(x == bombX && y == bombY){
+		gameOver = true;
+		cout << "\a";
+		return;
 	}
 	
 	return;
